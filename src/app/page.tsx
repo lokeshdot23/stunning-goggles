@@ -68,7 +68,7 @@ const [editedText,setEditedText]=useState<string>('');
                         editingIndex=== index ?(
                           <div>
                             <div>
-                              <input  className="p-1 rounded border" type="text" value={editedText} onChange={(e)=>setEditedText(e.target.value)}/>
+                              <input  className="p-1 rounded border bg-white" type="text" value={editedText} onChange={(e)=>setEditedText(e.target.value)}/>
                             </div>
                             <div>
                               <Button variant="ghost" className="hover:bg-transparent" onClick={()=>{
