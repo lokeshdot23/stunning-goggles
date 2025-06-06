@@ -4,21 +4,44 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "react-hot-toast";
 import toast from 'react-hot-toast';
+import { useEffect } from "react";
+
 
 export default function Home() {
+  interface Task
+   {
+    text:string,
+    completed:boolean
+  };
   const [task,setTask]=useState('');
-  const [allTasks,setAllTasks]=useState<string[]>([]);
+  const [allTasks,setAllTasks]=useState<Task[]>([]);
+  useEffect(()=>{
+    const stored =localStorage.getItem('tasks')
+    if(stored){
+      setAllTasks(JSON.parse(stored));
+    }
+  },[])
   const addTasks=()=>{
     if(task.trim()){
-      setAllTasks(prev=>[...prev,task]);
+      const newTask=[...allTasks,{text:task,completed:false}]
+      setAllTasks(newTask);
       setTask('');
+      localStorage.setItem('tasks',JSON.stringify(newTask));
     }
+  }
+  const toggleComplete =(index:number)=>{
+    const updateTask=allTasks.map((tsk,i)=>
+      i===index ? {...tsk,completed: !tsk.completed}:tsk
+    );
+    setAllTasks(updateTask);
+    localStorage.setItem('tasks',   JSON.stringify(updateTask));
   }
   const deleteTask=(index:number)=>{
     const updateTasks=allTasks.filter((task,currentIndex)=>{
       return currentIndex!==index;
     });
     setAllTasks(updateTasks);
+    localStorage.setItem('tasks',JSON.stringify(updateTasks))
     toast.success("Item deleted");
   }
   
@@ -31,16 +54,21 @@ export default function Home() {
             </div>
             <div className="w-1/2 p-4 border shadow-md ">
               <h1 className="text-center bg-amber-100 rounded-md p-2 m-4" >All Tasks</h1>
-              <ul className="flex flex-wrap gap-3 flex-1 ">
+              <ul className="flex flex-wrap gap-3  ">
                 {
                   allTasks.map((tsk,index)=>(
-                    <li className="border rounded-sm p-4 bg-purple-300 flex-wrap max-w-[32%]" key={index}><div>{tsk}</div> 
-                    <div><Button variant="ghost" className="hover:bg-transparent" onClick={()=>deleteTask(index)}>delete</Button></div>
+                    <li className="border rounded-sm p-4 bg-purple-300 flex-wrap max-w-[32%]"     key={index}><div className={tsk.completed? "line-through test-grey-500":""}>{tsk.text}</div> 
+                        <div className="flex justify-between mt-2">
+                            <Button variant="ghost" className="hover:bg-transparent" onClick={()=>toggleComplete(index)}>
+                                {tsk.completed? 'Undo':'Done'}
+                            </Button>
+                            <Button variant="ghost" className="hover:bg-transparent" onClick={()=>deleteTask(index)}>delete</Button>
+                        </div>
                     </li>
                   ))
                 }
               </ul>
-              <Toaster position="bottom-right" />
+              <Toaster position="top-right" />
             </div> 
           </div>        
   );
