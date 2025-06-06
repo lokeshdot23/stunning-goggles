@@ -15,6 +15,10 @@ export default function Home() {
   };
   const [task,setTask]=useState('');
   const [allTasks,setAllTasks]=useState<Task[]>([]);
+//for edit more 
+const [editingIndex,setEditingIndex]=useState<number|null>(null);
+const [editedText,setEditedText]=useState<string>('');
+
   useEffect(()=>{
     const stored =localStorage.getItem('tasks')
     if(stored){
@@ -57,8 +61,38 @@ export default function Home() {
               <ul className="flex flex-wrap gap-3  ">
                 {
                   allTasks.map((tsk,index)=>(
-                    <li className="border rounded-sm p-4 bg-purple-300 flex-wrap max-w-[32%]"     key={index}><div className={tsk.completed? "line-through test-grey-500":""}>{tsk.text}</div> 
+                    <li className="border rounded-sm p-4 bg-purple-300 flex-wrap max-w-[32%]"     key={index}>
+                      {/* <div className={tsk.completed? "line-through test-grey-500":""}>{tsk.text}
+                      </div>  */}
+                      {
+                        editingIndex=== index ?(
+                          <div>
+                            <div>
+                              <input  className="p-1 rounded border" type="text" value={editedText} onChange={(e)=>setEditedText(e.target.value)}/>
+                            </div>
+                            <div>
+                              <Button variant="ghost" className="hover:bg-transparent" onClick={()=>{
+                                const updatedTasks=[...allTasks];
+                                updatedTasks[index].text=editedText;
+                                setAllTasks(updatedTasks);
+                                setEditingIndex(null);
+                                localStorage.setItem('tasks',JSON.stringify(updatedTasks));
+                              }}>save</Button>
+                              <Button variant="ghost" className="hover:bg-transparent" onClick={()=>{
+                                setEditingIndex(null);
+                              }}>cancel</Button>
+                            </div>
+                          </div>
+                        )
+                        :(
+                          <div className={tsk.completed? "line-through text-grey-500":""}>{tsk.text}</div>
+                        )
+                      }
                         <div className="flex justify-between mt-2">
+                          <Button variant='ghost' className="hover:bg-transparent" onClick={()=>{
+                            setEditingIndex(index);
+                            setEditedText(tsk.text);
+                          }}>Edit</Button>
                             <Button variant="ghost" className="hover:bg-transparent" onClick={()=>toggleComplete(index)}>
                                 {tsk.completed? 'Undo':'Done'}
                             </Button>
